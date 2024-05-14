@@ -14,7 +14,7 @@ namespace DependencyInjectionContainerLib
          */
         void Register<TDependency, TImplementation>()
             where TDependency : class
-            where TImplementation : TDependency, new();
+            where TImplementation : TDependency;
 
 
         /**
@@ -25,7 +25,7 @@ namespace DependencyInjectionContainerLib
          */
         void Singleton<TDependency, TImplementation>()
             where TDependency : class
-            where TImplementation : TDependency, new();
+            where TImplementation : TDependency;
 
         /**
          * <summary>

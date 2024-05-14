@@ -1,8 +1,5 @@
 using DependencyInjectionContainerLib;
 using DependencyInjectionContainerTests.TestDoubles;
-using System.Reflection.Metadata;
-using System.Runtime.ConstrainedExecution;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace DependencyInjectionContainerTests
 {
@@ -114,6 +111,90 @@ namespace DependencyInjectionContainerTests
 
             Assert.AreEqual(1, configuration.Singletons.Count);
             Assert.IsTrue(configuration.Singletons.Contains(new KeyValuePair<Type, bool>(typeof(ITest), true)));
+        }
+
+        [TestMethod]
+        public void DIProvider_WhenDefaultConstructorDependency()
+        {
+            var configuration   = new DependenciesConfiguration();
+            configuration.Register<ITest, Test>();
+            var provider        = new DependencyProvider(configuration);
+
+            ITest expected  = new Test();
+            ITest actual    = provider.Resolve<ITest>();
+ 
+            Assert.AreEqual(expected, actual);
+            Assert.AreNotSame(expected, actual);
+        }
+
+        [TestMethod]
+        public void DIProvider_WhenSingletonDefaultConstructorDependency()
+        {
+            var configuration = new DependenciesConfiguration();
+            configuration.Singleton<ITest, Test>();
+            var provider = new DependencyProvider(configuration);
+
+            ITest expected  = provider.Resolve<ITest>();
+            ITest actual    = provider.Resolve<ITest>();
+
+            Assert.AreSame(expected, actual);
+        }
+
+        [TestMethod]
+        public void DIProvider_WhenSingletonOverwrittenDependency()
+        {
+            var configuration = new DependenciesConfiguration();
+            configuration.Singleton<ITest, Test>();
+            configuration.Register<ITest, Test>();
+            var provider = new DependencyProvider(configuration);
+
+            ITest expected  = provider.Resolve<ITest>();
+            ITest actual    = provider.Resolve<ITest>();
+
+            Assert.AreNotSame(expected, actual);
+        }
+
+        [TestMethod]
+        public void DIProvider_WhenDependencyConstructorHasResolvableDependencies()
+        {
+            var configuration = new DependenciesConfiguration();
+            configuration.Singleton<ITest, Test>();
+            configuration.Register<Test2, Test2>();
+            var provider = new DependencyProvider(configuration);
+
+            ITest expected  = provider.Resolve<ITest>();
+            ITest actual    = provider.Resolve<ITest>();
+
+            Assert.AreSame(expected, actual);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(DependenciesConfigurationException))]
+        public void DIProvider_WhenDependencyConstructorHasNotResolvableDependencies()
+        {
+            var configuration = new DependenciesConfiguration();
+            configuration.Singleton<ITest, Test2>();
+            var provider = new DependencyProvider(configuration);
+
+            Assert.IsFalse(provider.IsValid);
+            provider.Resolve<ITest>();
+        }
+
+        [TestMethod]
+        public void DIProvider_WhenEnumerableDependency()
+        {
+            var configuration = new DependenciesConfiguration();
+            configuration.Register<ITest, Test>();
+            configuration.Register<ITest, Test1>();
+            configuration.Register<Test4, Test4>();
+            var provider = new DependencyProvider(configuration);
+
+            Assert.IsTrue(provider.IsValid);
+
+            IEnumerable<ITest> expected = new List<ITest> { new Test(), new Test1() };
+            IEnumerable<ITest> actual   = provider.Resolve<Test4>().tests;
+
+            CollectionAssert.AreEquivalent(expected.ToArray(), actual.ToArray());
         }
     }
 }

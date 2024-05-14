@@ -72,7 +72,7 @@ namespace DependencyInjectionContainerLib
 
         public void Register<TDependency, TImplementation>()
             where TDependency : class
-            where TImplementation : TDependency, new()
+            where TImplementation : TDependency
         {
             var D = typeof(TDependency);
             var I = typeof(TImplementation);
@@ -90,7 +90,7 @@ namespace DependencyInjectionContainerLib
 
         public void Singleton<TDependency, TImplementation>()
             where TDependency : class
-            where TImplementation : TDependency, new()
+            where TImplementation : TDependency
         {
             var D = typeof(TDependency);
             var I = typeof(TImplementation);
