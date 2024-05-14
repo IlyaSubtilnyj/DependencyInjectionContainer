@@ -98,19 +98,22 @@ namespace DependencyInjectionContainerTests
         }
 
         [TestMethod]
-        public void DIProvider_WhenInstancePerDependency()
+        public void DIConfiguration_WhenInstancePerDependency()
         {
             var configuration = new DependenciesConfiguration();
-            //register
+            configuration.Register<ITest, Test>();
 
+            Assert.AreEqual(0, configuration.Singletons.Count);
         }
 
         [TestMethod]
-        public void DIProvider_WhenSingletonDependency()
+        public void DIConfiguration_WhenSingletonDependency()
         {
             var configuration = new DependenciesConfiguration();
-            //register
+            configuration.Singleton<ITest, Test>();
 
+            Assert.AreEqual(1, configuration.Singletons.Count);
+            Assert.IsTrue(configuration.Singletons.Contains(new KeyValuePair<Type, bool>(typeof(ITest), true)));
         }
     }
 }
